@@ -5,11 +5,13 @@ import { Grid, Row, FormGroup } from 'react-bootstrap';
 //parametros default para traer datos de la API (https://hn.algolia.com/api)
 
 const DEFAULT_QUERY = 'react';
+const DEFAULT_PAGE = 0;
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
+const PARAM_PAGE = 'page=';
 
-const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
+const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_PAGE}`;
 
 console.log(url);
 
@@ -36,6 +38,7 @@ class App extends Component {
 		this.searchValue = this.searchValue.bind(this);
 		this.fetchTopStories = this.fetchTopStories.bind(this);
 		this.setTopStories = this.setTopStories.bind(this);
+		this.onSubmit = this.onSubmit.bind(this);
 	}
 
 	//metodo setTopStories
@@ -43,24 +46,26 @@ class App extends Component {
 		this.setState({ result: result });
 	}
 
-	//traigo top stories
-	fetchTopStories(searchTerm){
-		fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`)
+	fetchTopStories(searchTerm, page){
+		fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`)
 			.then(response => response.json())
 			.then(result => this.setTopStories(result))
 			.catch(e => e);
 	}
 
-	//componentDidMount
 	componentDidMount(){
-		this.fetchTopStories(this.state.searchTerm);
+		this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
+	}
+
+	onSubmit(event){
+		this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
+		event.preventDefault()
 	}
 	
 	removeItem(id){
 		const { result } = this.state;
 		const updatedList = result.hits.filter(item => item.objectID !== id);
 		this.setState({ result: {...result, hits: updatedList} });
-
 	}
 
 	searchValue(event){
@@ -68,9 +73,9 @@ class App extends Component {
 	}
 
   render() {
-		const { result, searchTerm } = this.state;
 
-		//if(!result) { return null; }
+		const { result, searchTerm } = this.state;
+		const page = (result && result.page) || 0;
 
 		console.log(this);
     return (
@@ -81,28 +86,36 @@ class App extends Component {
 						<Search
 							onChange={ this.searchValue }
 							value={ searchTerm }
+							onSubmit={ this.onSubmit }
 						>NEWS APP </Search>
 						</div>
 					</Row>
 				</Grid>
 
-				{ result &&
+			{ result &&
 				<Table 
 					list={ result.hits }
 					searchTerm={ searchTerm }
 					removeItem= {this.removeItem }
 				/>
-				}
+			}
+			<div className="text-center alert">
+			<Button
+				className="btn btn-primary btn-lg"
+				onClick={ () => this.fetchTopStories(searchTerm, page + 1) }>
+					Load More
+				</Button>
+			</div>
 
 			</div>
-		)
+		);
 	}
 }
 
 //Stateless components
-const Search = ({ onChange, value, children }) => {
+const Search = ({ onChange, value, children, onSubmit }) => {
 	return(
-		<form>
+		<form onSubmit={ onSubmit }>
 			<FormGroup>
 				<h1 style={{ fontWeight: 'bold' }}>{ children }</h1>
 				<hr style={{ border: '2px solid black', width: '100px' }}/>
@@ -131,7 +144,7 @@ const Table = ({ list, searchTerm, removeItem }) => {
 	return(
 		<div className="col-sm-10 col-sm-offset-1 ">
 			{
-				list.filter( isSearched(searchTerm) ).map(item => 
+				list.map(item => 
 					<div key={ item.objectID }>
 						<h2>
 							<a href={ item.url }>"{ item.title }"</a> by { item.author }
