@@ -153,7 +153,7 @@ const Table = ({ list, searchTerm, removeItem }) => {
 							{ /* adentro de JSX los comentarios son asi! */}
 							{ /* para usar la palabra this usamos arrow functions */}
 							<Button
-								className="btn btn-danger btn-xs"
+								className="btn btn-danger btn-xs remove"
 								type="button"
 								onClick={ () => removeItem(item.objectID) } >
 								Remove
