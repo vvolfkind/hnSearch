@@ -4,21 +4,21 @@ body {
   font-family: sans-serif;
 }
 
-.jumbotron {
-  background: linear-gradient(to right, red, yellow);
-  border-radius: 0px!important;
+.jumbotron{
+    background: linear-gradient(to right, red , yellow);
+    border-radius: 0px!important;
 }
 
-.searchForm {
-  height: 80px;
-  font-size: 50px;
+.searchForm{
+    height: 80px;
+    font-size: 50px;
 }
 
-.searchBtn {
-  height: 80px;
-  width: 200px;
+.searchBtn{
+    height: 80px;
+    width: 200px;
 }
 
-.remove {
-  margin-left: 5px;
+.btn {
+    margin-left: 5px;
 }
