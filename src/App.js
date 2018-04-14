@@ -56,26 +56,22 @@ class App extends Component {
     const updatedHits = [...oldHits, ...hits];
 
     this.setState({ results: { ...results, [searchKey]: {hits: updatedHits, page} } });
-    
+
   }
 
-  // fetch top stories
   fetchTopStories(searchTerm, page){
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}
-      &${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(response => response.json())
       .then(result => this.setTopStories(result))
       .catch(e => e);
   }
 
-  // component did mount
   componentDidMount() {
     const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm });
     this.fetchTopStories(searchTerm, DEFAULT_PAGE);
   }
 
-  // on search submit function
   onSubmit(event){
     const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm });
@@ -87,28 +83,20 @@ class App extends Component {
     event.preventDefault();
   }
 
- 
- // lets rewrite removeItem function in ES6
  removeItem(id){
   const { results, searchKey } = this.state;
   const { hits, page } = results[searchKey];
-  // const isNotId = item => item.objectID !== id;
   const updatedList = hits.filter(item => item.objectID !== id);
-  // this.setState({ result: Object.assign({}, this.state.result, {hits: updatedList}) });
   this.setState({ results: {...results, [searchKey]: {hits: updatedList, page}} });
  }
 
- // get input field value from search form
  searchValue(event){
-  // console.log(event)
   this.setState({ searchTerm: event.target.value });
  }
 
   render() {
 
     const { results, searchTerm, searchKey } = this.state;
-
-    // if (!result) { return null; }
 
     const page = (results && results[searchKey] && results[searchKey].page) || 0;
 
@@ -118,7 +106,7 @@ class App extends Component {
 
     return (
       <div>
-
+        
         <Grid fluid>
           <Row>
             <div className="jumbotron text-center">
@@ -139,8 +127,7 @@ class App extends Component {
               list={ list }
               searchTerm={ searchTerm }
               removeItem={ this.removeItem }
-            />
-          
+            />          
 
           <div className="text-center alert">
             <Button
@@ -196,7 +183,6 @@ const Table = ({ list, searchTerm, removeItem }) => {
   return(
       <div className="col-sm-10 col-sm-offset-1">
         {
-            // list.filter( isSearched(searchTerm) ).map(item =>
             list.map(item =>   
               <div key={ item.objectID }>
                 <h1>
@@ -204,18 +190,14 @@ const Table = ({ list, searchTerm, removeItem }) => {
                     { item.title }</a> 
                 </h1>
                 <h4>
-
-                  { item.author } | { item.num_comments } Comments | { item.points } Points
-                
+                  { item.author } | { item.num_comments } Comments | { item.points } Points  
                 <Button
                   className="btn btn-xs"
                   type="button"
                   onClick={ () => removeItem(item.objectID) }>
                     Remove
                 </Button>
-
                 </h4> <hr />
-
               </div>
             )
           }
@@ -223,16 +205,12 @@ const Table = ({ list, searchTerm, removeItem }) => {
     )
 }
 
-
 const Button = ({ onClick, children, className='' }) => 
   <button
     className={ className }  
     onClick={ onClick } >
     { children }
   </button>
-
-
-
 
 export default App;
 
