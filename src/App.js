@@ -6,12 +6,14 @@ import { Grid, Row, FormGroup } from 'react-bootstrap';
 
 const DEFAULT_QUERY = 'react';
 const DEFAULT_PAGE = 0;
+const DEFAULT_HPP = 10;
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
+const PARAM_HPP = 'hitsPerPage=';
 
-const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_PAGE}`;
+const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_PAGE}&${PARAM_HPP}${DEFAULT_HPP}`;
 
 console.log(url);
 
@@ -30,7 +32,8 @@ class App extends Component {
 		super(props);
 		//seteo state
 		this.state ={
-			result: null,
+			results: null,
+			searchKey: '',
 			searchTerm: DEFAULT_QUERY
 		}
 		//bindear funciones a this (app component)
@@ -43,29 +46,40 @@ class App extends Component {
 
 	//metodo setTopStories
 	setTopStories(result){
-		this.setState({ result: result });
+		const { hits, page } = result;
+
+		const { searchKey, results } = this.state;
+
+		const oldHits = results && results[searchKey] ? results[searchKey].hits : [];
+		const updatedHits = [...oldHits, ...hits]
+		this.setState({ results: { ...results, [searchKey]: {hits: updatedHits, page} } });
 	}
 
 	fetchTopStories(searchTerm, page){
-		fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`)
+		fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
 			.then(response => response.json())
 			.then(result => this.setTopStories(result))
 			.catch(e => e);
 	}
 
 	componentDidMount(){
-		this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
+		const { searchTerm } = this.state;
+		this.setState({ searchKey: searchTerm });
+		this.fetchTopStories(searchTerm, DEFAULT_PAGE);
 	}
 
 	onSubmit(event){
-		this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
+		const { searchTerm } = this.state;
+		this.setState({ searchKey: searchTerm });
+		this.fetchTopStories(searchTerm, DEFAULT_PAGE);
 		event.preventDefault()
 	}
 	
 	removeItem(id){
-		const { result } = this.state;
-		const updatedList = result.hits.filter(item => item.objectID !== id);
-		this.setState({ result: {...result, hits: updatedList} });
+		const { results, searchKey } = this.state;
+		const { hits, page } = results[searchKey];
+		const updatedList = hits.filter(item => item.objectID !== id);
+		this.setState({ results: {...results, [searchKey]: {hits: updatedList, page}} });
 	}
 
 	searchValue(event){
@@ -74,8 +88,9 @@ class App extends Component {
 
   render() {
 
-		const { result, searchTerm } = this.state;
-		const page = (result && result.page) || 0;
+		const { results, searchTerm, searchKey } = this.state;
+		const page = (results && results[searchKey] && results[searchKey].page) || 0;
+		const list = (results && results[searchKey] && results[searchKey].page) || [];
 
 		console.log(this);
     return (
@@ -92,20 +107,20 @@ class App extends Component {
 					</Row>
 				</Grid>
 
-			{ result &&
+
 				<Table 
-					list={ result.hits }
+					list={ list }
 					searchTerm={ searchTerm }
 					removeItem= {this.removeItem }
 				/>
-			}
-			<div className="text-center alert">
-			<Button
-				className="btn btn-primary btn-lg"
-				onClick={ () => this.fetchTopStories(searchTerm, page + 1) }>
-					Load More
-				</Button>
-			</div>
+
+				<div className="text-center alert">
+				<Button
+					className="btn btn-primary btn-lg"
+					onClick={ () => this.fetchTopStories(searchTerm, page + 1) }>
+						Load More
+					</Button>
+				</div>
 
 			</div>
 		);
