@@ -65,18 +65,18 @@ class App extends Component {
       .catch(e => e);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm });
-    this.fetchTopStories(searchTerm, DEFAULT_PAGE);
+    await this.fetchTopStories(searchTerm, DEFAULT_PAGE);
   }
 
-  onSubmit(event){
+  async onSubmit(event){
     const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm });
 
     if (this.checkTopStoriesSearchTerm(searchTerm)) {
-      this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
+      await this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
     }
 
     event.preventDefault();
@@ -131,7 +131,7 @@ class App extends Component {
           <div className="text-center alert">
             <Button
               className="btn btn-success"
-              onClick={ () => this.fetchTopStories(searchTerm, page + 1) }>
+              onClick={ async () => await this.fetchTopStories(searchTerm, page + 1) }>
               Load more
             </Button>
           </div>
