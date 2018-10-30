@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import list from './list';
 import { Grid, Row, FormGroup } from 'react-bootstrap';
 
 // default parameters to fetch data from the api
@@ -17,11 +16,11 @@ const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_
 console.log(url);
 
 // filter the results by search
-function isSearched(searchTerm){
-  return function(item){
-    return !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
-  }
-}
+// function isSearched(searchTerm){
+//   return function(item){
+//     return !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
+//   }
+// }
 
 class App extends Component {
 
